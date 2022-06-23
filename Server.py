@@ -6,6 +6,35 @@ from Postgres import Postgres
 
 DATABASE_INSTANCE = Postgres()
 
+def Check_tables():
+
+    contato_table_create = 'CREATE TABLE IF NOT EXISTS contato ' + \
+                            '( ' + \
+                                'contato_id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ), ' + \
+                                'nome text COLLATE pg_catalog."default" NOT NULL, ' + \
+                                'email text COLLATE pg_catalog."default" NOT NULL, ' + \
+                                'CONSTRAINT contato_pkey PRIMARY KEY (contato_id), ' + \
+                                'CONSTRAINT contato_nome_key UNIQUE (nome) ' + \
+                            ')'
+    telefone_table_create = 'CREATE TABLE IF NOT EXISTS telefone ' + \
+                            '( ' + \
+                                'telefone_id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ), ' + \
+                                'telefone text COLLATE pg_catalog."default" NOT NULL, ' + \
+                                'contato_id integer NOT NULL, ' + \
+                                'CONSTRAINT telefone_pkey PRIMARY KEY (telefone_id), ' + \
+                                'CONSTRAINT telefone_telefone_key UNIQUE (telefone), ' + \
+                                'CONSTRAINT telefone_contato_id_fkey FOREIGN KEY (contato_id) ' + \
+                                    'REFERENCES contato (contato_id) MATCH SIMPLE ' + \
+                            ')'
+    
+    conn = DATABASE_INSTANCE.connectToDataBase()
+    cur = conn.cursor()
+    cur.execute(contato_table_create)
+    cur.execute(telefone_table_create)
+    conn.commit()
+    cur.close()
+    conn.close()
+
 def Get_ContatoID_by_name(cur, nome):
     try:
         query = 'SELECT contato_id ' + \
@@ -28,7 +57,7 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
     def _no_route(self):
         self.send_response(404)
         self.end_headers()
-        html = '<h1>Não existe rota \'' + self.path + '\' no momento.<h1>'
+        html = '<h1>No route \'' + self.path + '\'.<h1>'
         self.wfile.write(html.encode())
 
     def do_HEAD(self):
@@ -36,19 +65,16 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
 
     #handle GET method
     def do_GET(self):
-        length = int(self.headers.get('content-length'))
-        request_body = json.loads(self.rfile.read(length))
-
-        curr_schema = request_body['schema']
 
         try:
             conn = DATABASE_INSTANCE.connectToDataBase()
             cur = conn.cursor()
-            cur.execute('SET SEARCH_PATH TO \'' + curr_schema + '\'')
             
             if self.path == '/contatos':
-                query = 'SELECT * ' + \
-                        'FROM contato'
+                query = 'SELECT nome, email, STRING_AGG(telefone, \', \') as telefones ' + \
+                        'FROM contato ' + \
+                        'INNER JOIN telefone ON contato.contato_id=telefone.contato_id ' + \
+                        'GROUP BY nome, email'
             elif self.path == '/telefones':
                 query = 'SELECT telefone.telefone_id, contato.nome, telefone.telefone ' + \
                         'FROM contato ' + \
@@ -87,22 +113,18 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
         length = int(self.headers.get('content-length'))
         request_body = json.loads(self.rfile.read(length))
 
-        curr_schema = request_body['schema']
         responsePayload = {}
 
         try:
             conn = DATABASE_INSTANCE.connectToDataBase()
             cur = conn.cursor()
-            cur.execute('SET SEARCH_PATH TO \'' + curr_schema + '\'')
+            user_data = request_body['infos']
 
             if self.path == '/contato':
-                user_data = request_body['infos']
                 query = 'INSERT INTO contato (nome, email) ' + \
                         'VALUES (\'{}\', \'{}\')' \
                         .format(user_data['nome'], user_data['email'])
             elif self.path == '/telefone':
-                user_data = request_body['infos']
-
                 contato_id = Get_ContatoID_by_name(cur, user_data['nome']);
 
                 query = 'INSERT INTO telefone (contato_id, telefone) ' + \
@@ -129,6 +151,7 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(responsePayload).encode())
 
     #handle PUT method
+    #TODO
     def do_PUT(self):
         length = int(self.headers.get('content-length'))
         request_body = json.loads(self.rfile.read(length)) 
@@ -144,7 +167,32 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
         length = int(self.headers.get('content-length'))
         request_body = json.loads(self.rfile.read(length)) 
 
-        responsePayload = {'status': 'DELETE great'}
+        try:
+            conn = DATABASE_INSTANCE.connectToDataBase()
+            cur = conn.cursor()
+            data = request_body['info']
+            
+            if self.path == '/contato':
+                query = 'DELETE FROM contato ' + \
+                        'WHERE nome=\'' + data['nome'] + '\''
+            elif self.path == '/telefone':
+                query = 'DELETE FROM telefone ' + \
+                        'WHERE telefone=\'' + data['telefone'] + '\''
+            else:
+                self._no_route()
+                return
+
+            cur.execute(query)
+            conn.commit()
+
+            responsePayload = {'status': 'success'}
+
+        except Exception as e:
+            print('> Error:', e)
+            responsePayload = {'status': 'failed', 'error': str(e)}
+        finally:
+            cur.close()
+            conn.close()
 
         # Envia informações da assinatura para o cliente
         self._set_headers()
@@ -152,6 +200,7 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
 
 def Start_http_server():
     print('http server is starting...')
+    Check_tables()
     server_address = ('localhost', 9090)
     httpd = HTTPServer(server_address, MyHTTPRequestHandler)  
     print('http server is running...')
