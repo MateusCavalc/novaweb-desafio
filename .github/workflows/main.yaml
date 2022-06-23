@@ -56,6 +56,3 @@ jobs:
       image: ghcr.io/mateuscavalc/python-server:main
       ports:
            - 9090:9090
-    steps:
-      - name: Test python server
-        run: curl http://localhost:9090/contatos
