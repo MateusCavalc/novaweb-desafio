@@ -90,7 +90,10 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             for row in cur.fetchall():
                 data = {}
                 for i, row_data in enumerate(row):
-                    data[columns[i][0]] = row_data
+                    if columns[i][0] == 'telefones':
+                        data[columns[i][0]] = row_data.split(',')
+                    else:
+                        data[columns[i][0]] = row_data
 
                 data_array.append(data)
 
@@ -119,6 +122,7 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             cur = conn.cursor()
             user_data = request_body['infos']
 
+            # TODO
             if self.path == '/contato':
                 query = 'INSERT INTO contato (nome, email) ' + \
                         'VALUES (\'{}\', \'{}\')' \
@@ -160,25 +164,20 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             conn = DATABASE_INSTANCE.connectToDataBase()
             cur = conn.cursor()
             
-            fields = request_body['fields']
-            cols = '('
-            for i, field in enumerate(fields):
-                cols += field
-                if(i < len(fields) - 1):
-                    cols += ','
+            new_infos = request_body['infos']
+            set_stat = ''
 
-            cols += ')'
+            for i, field in enumerate(new_infos.keys()):
+                set_stat += field + '=\'' + new_infos[field] + '\''
+                if(i < len(new_infos.keys()) - 1):
+                    set_stat += ','
 
             if self.path == '/contato':
-                user_data = request_body['infos']
-                query = 'INSERT INTO contato (nome, email) ' + \
-                        'VALUES (\'{}\', \'{}\')' \
-                        .format(user_data['nome'], user_data['email'])
+                query = 'UPDATE contato ' + \
+                        'SET ' + set_stat + ' ' + \
+                        'WHERE nome=\'{}\'' \
+                        .format(request_body['nome'])
             elif self.path == '/telefone':
-                user_data = request_body['infos']
-
-                contato_id = Get_ContatoID_by_name(cur, user_data['nome']);
-
                 query = 'INSERT INTO telefone (contato_id, telefone) ' + \
                         'VALUES (\'{}\', \'{}\')' \
                         .format(contato_id, user_data['telefone'])
