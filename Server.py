@@ -78,7 +78,6 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             cur.close()
             conn.close()
 
-        # Envia informações da assinatura para o cliente
         self._set_headers()
         self.wfile.write(json.dumps(responsePayload).encode())
 
@@ -124,7 +123,6 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             cur.close()
             conn.close()
 
-        # Envia informações da assinatura para o cliente
         self._set_headers()
         self.wfile.write(json.dumps(responsePayload).encode())
 
@@ -133,9 +131,50 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
         length = int(self.headers.get('content-length'))
         request_body = json.loads(self.rfile.read(length)) 
 
-        responsePayload = {'status': 'PUT great'}
+        responsePayload = {}
 
-        # Envia informações da assinatura para o cliente
+        try:
+            conn = DATABASE_INSTANCE.connectToDataBase()
+            cur = conn.cursor()
+            
+            fields = request_body['fields']
+            cols = '('
+            for i, field in enumerate(fields):
+                cols += field
+                if(i < len(fields) - 1):
+                    cols += ','
+
+            cols += ')'
+
+            if self.path == '/contato':
+                user_data = request_body['infos']
+                query = 'INSERT INTO contato (nome, email) ' + \
+                        'VALUES (\'{}\', \'{}\')' \
+                        .format(user_data['nome'], user_data['email'])
+            elif self.path == '/telefone':
+                user_data = request_body['infos']
+
+                contato_id = Get_ContatoID_by_name(cur, user_data['nome']);
+
+                query = 'INSERT INTO telefone (contato_id, telefone) ' + \
+                        'VALUES (\'{}\', \'{}\')' \
+                        .format(contato_id, user_data['telefone'])
+
+            else:
+                self._no_route()
+                return
+            
+            cur.execute(query)
+            conn.commit()
+            responsePayload = {'status': 'success'}
+
+        except Exception as e:
+            print('> Error:', e)
+            responsePayload = {'status': 'failed', 'error': str(e)}
+        finally:
+            cur.close()
+            conn.close()
+
         self._set_headers()
         self.wfile.write(json.dumps(responsePayload).encode())
 
@@ -144,9 +183,8 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
         length = int(self.headers.get('content-length'))
         request_body = json.loads(self.rfile.read(length)) 
 
-        responsePayload = {'status': 'DELETE great'}
+        
 
-        # Envia informações da assinatura para o cliente
         self._set_headers()
         self.wfile.write(json.dumps(responsePayload).encode())
 
