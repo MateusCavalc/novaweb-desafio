@@ -47,6 +47,18 @@ def Get_ContatoID_by_name(cur, nome):
     except Exception as e:
         raise e
 
+def Load_telefones(cur, contato_id, telefone_list):
+    try:
+        for telefone in telefone_list:
+            query = 'INSERT INTO telefone (contato_id, telefone) ' + \
+                    'VALUES (\'{}\', \'{}\')' \
+                    .format(contato_id, telefone)
+
+            cur.execute(query)
+
+    except Exception as e:
+        raise e
+
 class MyHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def _set_headers(self):
@@ -73,7 +85,7 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             if self.path == '/contatos':
                 query = 'SELECT nome, email, STRING_AGG(telefone, \', \') as telefones ' + \
                         'FROM contato ' + \
-                        'INNER JOIN telefone ON contato.contato_id=telefone.contato_id ' + \
+                        'LEFT JOIN telefone ON contato.contato_id=telefone.contato_id ' + \
                         'GROUP BY nome, email'
             elif self.path == '/telefones':
                 query = 'SELECT telefone.telefone_id, contato.nome, telefone.telefone ' + \
@@ -91,7 +103,10 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
                 data = {}
                 for i, row_data in enumerate(row):
                     if columns[i][0] == 'telefones':
-                        data[columns[i][0]] = row_data.split(',')
+                        if row_data:
+                            data[columns[i][0]] = row_data.split(',')
+                        else:
+                            data[columns[i][0]] = []
                     else:
                         data[columns[i][0]] = row_data
 
@@ -125,8 +140,15 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             # TODO
             if self.path == '/contato':
                 query = 'INSERT INTO contato (nome, email) ' + \
-                        'VALUES (\'{}\', \'{}\')' \
+                        'VALUES (\'{}\', \'{}\') RETURNING contato_id' \
                         .format(user_data['nome'], user_data['email'])
+
+                cur.execute(query)
+                new_contatoid = cur.fetchone()[0]
+                
+                if user_data['telefones']:
+                    Load_telefones(cur, new_contatoid, user_data['telefones'])
+
             elif self.path == '/telefone':
                 contato_id = Get_ContatoID_by_name(cur, user_data['nome']);
 
@@ -134,11 +156,12 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
                         'VALUES (\'{}\', \'{}\')' \
                         .format(contato_id, user_data['telefone'])
 
+                cur.execute(query)
+
             else:
                 self._no_route()
                 return
             
-            cur.execute(query)
             conn.commit()
             responsePayload = {'status': 'success'}
 
@@ -153,7 +176,6 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(responsePayload).encode())
 
     #handle PUT method
-    #TODO
     def do_PUT(self):
         length = int(self.headers.get('content-length'))
         request_body = json.loads(self.rfile.read(length)) 
