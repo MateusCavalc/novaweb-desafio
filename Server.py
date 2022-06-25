@@ -59,6 +59,65 @@ def Load_telefones(cur, contato_id, telefone_list):
     except Exception as e:
         raise e
 
+def Get_telefones_by_name(cur, contato_nome):
+    try:
+        contato_id = Get_ContatoID_by_name(cur, contato_nome);
+        query = 'SELECT telefone ' + \
+                'FROM telefone ' + \
+                'WHERE contato_id={}' \
+                .format(contato_id)
+
+        cur.execute(query)
+        telefones = []
+        for row in cur.fetchall():
+            telefones.append(row[0])
+
+        return telefones
+
+    except Exception as e:
+        raise e
+
+def Del_telefones(cur, telefone_list):
+    try:
+        query = 'DELETE FROM telefone ' + \
+                'WHERE telefone ' + \
+                'IN {}' \
+                .format(tuple(telefone_list))
+
+        cur.execute(query)
+
+    except Exception as e:
+        raise e
+
+def Update_contato_telefones(cur, contato_nome, new_telefones):  
+    try:
+        old_telefones = Get_telefones_by_name(cur, contato_nome)
+        to_remove = []
+
+        for old_telefone in old_telefones:
+            if old_telefone not in new_telefones:
+                to_remove.append(old_telefone)
+        
+        query = 'DELETE FROM telefone ' + \
+                'WHERE telefone ' + \
+                'IN {}' \
+                .format(tuple(to_remove))
+
+        cur.execute(query)
+
+        contato_id = Get_ContatoID_by_name(cur, contato_nome);
+
+        for new_telefone in new_telefones:
+            if new_telefone not in old_telefones:
+                query = 'INSERT INTO telefone (contato_id, telefone) ' + \
+                        'VALUES (\'{}\', \'{}\')' \
+                        .format(contato_id, new_telefone)
+
+                cur.execute(query)
+
+    except Exception as e:
+        raise e
+
 class MyHTTPRequestHandler(BaseHTTPRequestHandler):
 
     def _set_headers(self):
@@ -137,7 +196,6 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             cur = conn.cursor()
             user_data = request_body['infos']
 
-            # TODO
             if self.path == '/contato':
                 query = 'INSERT INTO contato (nome, email) ' + \
                         'VALUES (\'{}\', \'{}\') RETURNING contato_id' \
@@ -189,20 +247,29 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             new_infos = request_body['infos']
             set_stat = ''
 
+            if new_infos['telefones']:
+                contato_nome = request_body['nome']
+                new_telefones = new_infos['telefones']
+                Update_contato_telefones(cur, contato_nome, new_telefones)
+                del new_infos['telefones']
+            
             for i, field in enumerate(new_infos.keys()):
                 set_stat += field + '=\'' + new_infos[field] + '\''
                 if(i < len(new_infos.keys()) - 1):
                     set_stat += ','
 
             if self.path == '/contato':
+                contato_nome = request_body['nome']
                 query = 'UPDATE contato ' + \
                         'SET ' + set_stat + ' ' + \
                         'WHERE nome=\'{}\'' \
-                        .format(request_body['nome'])
+                        .format(contato_nome)
             elif self.path == '/telefone':
-                query = 'INSERT INTO telefone (contato_id, telefone) ' + \
-                        'VALUES (\'{}\', \'{}\')' \
-                        .format(contato_id, user_data['telefone'])
+                telefone = request_body['telefone']
+                query = 'UPDATE telefone ' + \
+                        'SET ' + set_stat + ' ' + \
+                        'WHERE telefone=\'{}\'' \
+                        .format(telefone)
 
             else:
                 self._no_route()
@@ -233,11 +300,17 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             data = request_body['info']
             
             if self.path == '/contato':
+                contato_nome = data['nome']
+                tel_list = Get_telefones_by_name(cur, contato_nome) # Pega a lista de telefones do contato
+                Del_telefones(cur, tel_list) # Apaga os telefones do contato
+                # Apaga o contato
                 query = 'DELETE FROM contato ' + \
-                        'WHERE nome=\'' + data['nome'] + '\''
+                        'WHERE nome=\'' + contato_nome + '\''
             elif self.path == '/telefone':
+                telefone = data['telefone']
+                # Apaga o telefone
                 query = 'DELETE FROM telefone ' + \
-                        'WHERE telefone=\'' + data['telefone'] + '\''
+                        'WHERE telefone=\'' + telefone + '\''
             else:
                 self._no_route()
                 return
