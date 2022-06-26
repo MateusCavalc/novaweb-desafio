@@ -247,11 +247,14 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             new_infos = request_body['infos']
             set_stat = ''
 
-            if new_infos['telefones']:
+            if 'telefones' in new_infos.keys():
                 contato_nome = request_body['nome']
                 new_telefones = new_infos['telefones']
                 Update_contato_telefones(cur, contato_nome, new_telefones)
                 del new_infos['telefones']
+
+            if ('telefone' in request_body.keys()) and ('nome' in new_infos.keys()):
+                new_infos['nome'] = Get_ContatoID_by_name(cur, new_infos['nome'])
             
             for i, field in enumerate(new_infos.keys()):
                 set_stat += field + '=\'' + new_infos[field] + '\''
@@ -266,6 +269,7 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
                         .format(contato_nome)
             elif self.path == '/telefone':
                 telefone = request_body['telefone']
+                contato_id = Get_ContatoID_by_name()
                 query = 'UPDATE telefone ' + \
                         'SET ' + set_stat + ' ' + \
                         'WHERE telefone=\'{}\'' \
