@@ -11,19 +11,19 @@ Foi implementado uma API REST, utilizando a linguagem Python, que efetua a manut
 #### Retorna todas as informações sobre os contatos cadastrados
 
 ```http
-  GET http://localhost:9090/contatos
+  GET localhost:9090/contatos
 ```
 
 #### Retornar todas as informações sobre os telefones cadastrados
 
 ```http
-  GET http://localhost:9090/telefones
+  GET localhost:9090/telefones
 ```
 
 #### Cadastrar novo contato
 
 ```http
-  POST http://localhost:9090/contato
+  POST localhost:9090/contato
 ```
 
 | Parâmetro | Tipo       | Descrição |
@@ -53,7 +53,7 @@ Foi implementado uma API REST, utilizando a linguagem Python, que efetua a manut
 #### Cadastrar novo telefone
 
 ```http
-  POST http://localhost:9090/telefone
+  POST localhost:9090/telefone
 ```
 
 | Parâmetro | Tipo       | Descrição |
@@ -73,7 +73,7 @@ Foi implementado uma API REST, utilizando a linguagem Python, que efetua a manut
 #### Atualiza informações do contato
 
 ```http
-  PUT http://localhost:9090/contato
+  PUT localhost:9090/contato
 ```
 
 | Parâmetro | Tipo       | Descrição |
@@ -116,7 +116,7 @@ Dentro do campo `infos` podem ter as seguintes informações:
 #### Atualiza informações do telefone
 
 ```http
-  PUT http://localhost:9090/telefone
+  PUT localhost:9090/telefone
 ```
 
 | Parâmetro | Tipo       | Descrição |
@@ -155,7 +155,7 @@ Dentro do campo `infos` podem ter as seguintes informações:
             }
 
 ```http
-  DEL http://localhost:9090/contato
+  DEL localhost:9090/contato
 ```
 
 | Parâmetro | Tipo       | Descrição |
@@ -172,7 +172,7 @@ Dentro do campo `infos` podem ter as seguintes informações:
 
 
 ```http
-  DEL http://localhost:9090/telefone
+  DEL localhost:9090/telefone
 ```
 
 | Parâmetro | Tipo       | Descrição |
