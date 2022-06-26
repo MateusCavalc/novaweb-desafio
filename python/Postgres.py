@@ -3,7 +3,9 @@ import urllib.parse as up
 import psycopg2
 import time
 
-POSTGRES_URL = 'postgres://' + os.getenv('DB_USER') + ':' + os.getenv('DB_PASSWORD') + '@' + os.getenv('DB_ADDRESS') + ':' + os.getenv('DB_PORT') + '/' + os.getenv('DB_NAME')
+# POSTGRES_URL = 'postgres://' + os.getenv('DB_USER') + ':' + os.getenv('DB_PASSWORD') + '@' + os.getenv('DB_ADDRESS') + ':' + os.getenv('DB_PORT') + '/' + os.getenv('DB_NAME')
+POSTGRES_URL = 'postgres://fywwmpwc:tch3IBBOrFOQFdUs6QPd_UosRQjqPByT@kesavan.db.elephantsql.com/fywwmpwc'
+
 
 # Classe de conexão com o banco Postgres
 class Postgres:
@@ -22,8 +24,7 @@ class Postgres:
         try:
             return psycopg2.connect(**self.db_settings)
         except Exception as e:
-            print('> Error at connection:', e)
-            return None
+            raise e
 
 def Check_tables(db_instance):
     
@@ -48,15 +49,16 @@ def Check_tables(db_instance):
 
     retry_connection = True
     time.sleep(5)
+    conn = None
+    cur = None
     while retry_connection:
         try:
             conn = db_instance.connectToDataBase()
-            cur = None
-            if conn is not None:
-                cur = conn.cursor()
-                cur.execute(contato_table_create)
-                cur.execute(telefone_table_create)
-                conn.commit()
+            cur = conn.cursor()
+            cur.execute(contato_table_create)
+            cur.execute(telefone_table_create)
+            conn.commit()
+            retry_connection = False
             
         except Exception as e:
             print(e)

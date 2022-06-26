@@ -24,7 +24,8 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
 
     #handle GET method
     def do_GET(self):
-
+        conn = None
+        cur = None
         try:
             conn = DATABASE_INSTANCE.connectToDataBase()
             cur = conn.cursor()
@@ -67,8 +68,10 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             print('> Error:', e)
             responsePayload = {'status': 'failed', 'error': str(e)}
         finally:
-            cur.close()
-            conn.close()
+            if cur is not None:
+                cur.close()
+            if conn is not None:
+                conn.close()
 
         self._set_headers()
         self.wfile.write(json.dumps(responsePayload).encode())
@@ -80,6 +83,8 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
 
         responsePayload = {}
 
+        conn = None
+        cur = None
         try:
             conn = DATABASE_INSTANCE.connectToDataBase()
             cur = conn.cursor()
@@ -116,8 +121,10 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             print('> Error:', e)
             responsePayload = {'status': 'failed', 'error': str(e)}
         finally:
-            cur.close()
-            conn.close()
+            if cur is not None:
+                cur.close()
+            if conn is not None:
+                conn.close()
 
         self._set_headers()
         self.wfile.write(json.dumps(responsePayload).encode())
@@ -129,6 +136,8 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
 
         responsePayload = {}
 
+        conn = None
+        cur = None
         try:
             conn = DATABASE_INSTANCE.connectToDataBase()
             cur = conn.cursor()
@@ -186,8 +195,10 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             print('> Error:', e)
             responsePayload = {'status': 'failed', 'error': str(e)}
         finally:
-            cur.close()
-            conn.close()
+            if cur is not None:
+                cur.close()
+            if conn is not None:
+                conn.close()
 
         self._set_headers()
         self.wfile.write(json.dumps(responsePayload).encode())
@@ -197,6 +208,8 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
         length = int(self.headers.get('content-length'))
         request_body = json.loads(self.rfile.read(length)) 
 
+        conn = None
+        cur = None
         try:
             conn = DATABASE_INSTANCE.connectToDataBase()
             cur = conn.cursor()
@@ -226,8 +239,10 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             print('> Error:', e)
             responsePayload = {'status': 'failed', 'error': str(e)}
         finally:
-            cur.close()
-            conn.close()
+            if cur is not None:
+                cur.close()
+            if conn is not None:
+                conn.close()
 
         self._set_headers()
         self.wfile.write(json.dumps(responsePayload).encode())
