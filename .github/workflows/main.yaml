@@ -54,5 +54,5 @@ jobs:
         with:
           file: ./Dockerfile.postgres
           push: true
-          tags: ${{ steps.meta.outputs.tags }}[1]
-          labels: ${{ steps.meta.outputs.labels }}[1]
+          tags: ${{ steps.meta.outputs.tags }[1]}
+          labels: ${{ steps.meta.outputs.labels }[1]}
