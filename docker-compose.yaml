@@ -2,15 +2,13 @@ version: '3.8'
 services:
     postgres-environment:
         container_name: postgres-server
-        image: ghcr.io/mateuscavalc/postgres-server:main
+        image: ghcr.io/mateuscavalc/postgres-server:main # Imagem do github repository
         restart: always
         ports:
             - 5432
-        # volumes:
-        #     - ./php/src:/var/www/html/
     python-environment:
         container_name: python-server
-        image: ghcr.io/mateuscavalc/python-server:main
+        image: ghcr.io/mateuscavalc/python-server:main # Imagem do github repository
         depends_on:
             - postgres-environment
         restart: always

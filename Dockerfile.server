@@ -1,6 +1,12 @@
 FROM python:3
 
-COPY . /server
+ENV DB_USER='novaweb-desafio-user'
+ENV DB_PASSWORD='novaweb-desafio-password'
+ENV DB_ADDRESS='postgres_server'
+ENV DB_PORT='5432'
+ENV DB_NAME='novaweb-db'
+
+COPY ./python /server
 
 WORKDIR /server
 
