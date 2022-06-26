@@ -26,6 +26,7 @@ class Postgres:
             return None
 
 def Check_tables(db_instance):
+    
     contato_table_create = 'CREATE TABLE IF NOT EXISTS contato ' + \
                             '( ' + \
                                 'contato_id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ), ' + \
@@ -46,6 +47,7 @@ def Check_tables(db_instance):
                             ')'
 
     retry_connection = True
+    time.sleep(5)
     while retry_connection:
         try:
             conn = db_instance.connectToDataBase()
