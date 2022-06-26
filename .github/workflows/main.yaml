@@ -13,7 +13,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME_PYTHON: python-server
-  POSTGRES: postgres-server
+  IMAGE_NAME_POSTGRES: postgres-server
 
 jobs:
   build-and-push-image:
@@ -37,7 +37,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}
+          images: |
+            ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME_PYTHON }}
+            ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME_POSTGRES }}
 
       - name: Build and push python image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
