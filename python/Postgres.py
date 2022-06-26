@@ -18,11 +18,13 @@ class Postgres:
         }
 
     def connectToDataBase(self):
-        return psycopg2.connect(**self.db_settings)
+        try:
+            return psycopg2.connect(**self.db_settings)
+        except Exception as e:
+            print('> Error at connection:', e)
+            return None
 
 def Check_tables(db_instance):
-    cur = None
-
     try:
         contato_table_create = 'CREATE TABLE IF NOT EXISTS contato ' + \
                                 '( ' + \
@@ -44,10 +46,11 @@ def Check_tables(db_instance):
                                 ')'
         
         conn = db_instance.connectToDataBase()
-        cur = conn.cursor()
-        cur.execute(contato_table_create)
-        cur.execute(telefone_table_create)
-        conn.commit()
+        if conn is not None:
+            cur = conn.cursor()
+            cur.execute(contato_table_create)
+            cur.execute(telefone_table_create)
+            conn.commit()
         
     except Exception as e:
         print(e)
