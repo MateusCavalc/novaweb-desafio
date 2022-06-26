@@ -21,6 +21,8 @@ class Postgres:
         return psycopg2.connect(**self.db_settings)
 
 def Check_tables(db_instance):
+    cur = None
+
     try:
         contato_table_create = 'CREATE TABLE IF NOT EXISTS contato ' + \
                                 '( ' + \
@@ -50,8 +52,10 @@ def Check_tables(db_instance):
     except Exception as e:
         print(e)
     finally:
-        cur.close()
-        conn.close()
+        if cur is not None:
+            cur.close()
+        if conn is not None:
+            conn.close()
 
 # Retorna o id do contato a partir do nome
 def Get_ContatoID_by_name(cur, nome):
