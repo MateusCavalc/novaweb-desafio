@@ -7,33 +7,35 @@ from Postgres import Postgres
 DATABASE_INSTANCE = Postgres()
 
 def Check_tables():
-    
-    contato_table_create = 'CREATE TABLE IF NOT EXISTS contato ' + \
-                            '( ' + \
-                                'contato_id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ), ' + \
-                                'nome text COLLATE pg_catalog."default" NOT NULL, ' + \
-                                'email text COLLATE pg_catalog."default" NOT NULL, ' + \
-                                'CONSTRAINT contato_pkey PRIMARY KEY (contato_id), ' + \
-                                'CONSTRAINT contato_nome_key UNIQUE (nome) ' + \
-                            ')'
-    telefone_table_create = 'CREATE TABLE IF NOT EXISTS telefone ' + \
-                            '( ' + \
-                                'telefone_id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ), ' + \
-                                'telefone text COLLATE pg_catalog."default" NOT NULL, ' + \
-                                'contato_id integer NOT NULL, ' + \
-                                'CONSTRAINT telefone_pkey PRIMARY KEY (telefone_id), ' + \
-                                'CONSTRAINT telefone_telefone_key UNIQUE (telefone), ' + \
-                                'CONSTRAINT telefone_contato_id_fkey FOREIGN KEY (contato_id) ' + \
-                                    'REFERENCES contato (contato_id) MATCH SIMPLE ' + \
-                            ')'
-    
-    conn = DATABASE_INSTANCE.connectToDataBase()
-    cur = conn.cursor()
-    cur.execute(contato_table_create)
-    cur.execute(telefone_table_create)
-    conn.commit()
-    cur.close()
-    conn.close()
+    try:
+        contato_table_create = 'CREATE TABLE IF NOT EXISTS contato ' + \
+                                '( ' + \
+                                    'contato_id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ), ' + \
+                                    'nome text COLLATE pg_catalog."default" NOT NULL, ' + \
+                                    'email text COLLATE pg_catalog."default" NOT NULL, ' + \
+                                    'CONSTRAINT contato_pkey PRIMARY KEY (contato_id), ' + \
+                                    'CONSTRAINT contato_nome_key UNIQUE (nome) ' + \
+                                ')'
+        telefone_table_create = 'CREATE TABLE IF NOT EXISTS telefone ' + \
+                                '( ' + \
+                                    'telefone_id integer NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1 ), ' + \
+                                    'telefone text COLLATE pg_catalog."default" NOT NULL, ' + \
+                                    'contato_id integer NOT NULL, ' + \
+                                    'CONSTRAINT telefone_pkey PRIMARY KEY (telefone_id), ' + \
+                                    'CONSTRAINT telefone_telefone_key UNIQUE (telefone), ' + \
+                                    'CONSTRAINT telefone_contato_id_fkey FOREIGN KEY (contato_id) ' + \
+                                        'REFERENCES contato (contato_id) MATCH SIMPLE ' + \
+                                ')'
+        
+        conn = DATABASE_INSTANCE.connectToDataBase()
+        cur = conn.cursor()
+        cur.execute(contato_table_create)
+        cur.execute(telefone_table_create)
+        conn.commit()
+        cur.close()
+        conn.close()
+    except Exception as e:
+        print(e)
 
 def Get_ContatoID_by_name(cur, nome):
     try:
@@ -142,7 +144,7 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             cur = conn.cursor()
             
             if self.path == '/contatos':
-                query = 'SELECT nome, email, STRING_AGG(telefone, \', \') as telefones ' + \
+                query = 'SELECT nome, email, STRING_AGG(telefone, \',\') as telefones ' + \
                         'FROM contato ' + \
                         'LEFT JOIN telefone ON contato.contato_id=telefone.contato_id ' + \
                         'GROUP BY nome, email'
@@ -254,10 +256,16 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
                 del new_infos['telefones']
 
             if ('telefone' in request_body.keys()) and ('nome' in new_infos.keys()):
-                new_infos['nome'] = Get_ContatoID_by_name(cur, new_infos['nome'])
+                new_infos['contato_id'] = Get_ContatoID_by_name(cur, new_infos['nome'])
+                del new_infos['nome']
             
+            # Monta string do SET statement da query SQL
             for i, field in enumerate(new_infos.keys()):
-                set_stat += field + '=\'' + new_infos[field] + '\''
+                if type(new_infos[field]) is str:
+                    set_stat += field + '=\'' + new_infos[field] + '\''
+                elif type(new_infos[field]) is int:
+                    set_stat += field + '=' + str(new_infos[field])
+
                 if(i < len(new_infos.keys()) - 1):
                     set_stat += ','
 
@@ -269,7 +277,6 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
                         .format(contato_nome)
             elif self.path == '/telefone':
                 telefone = request_body['telefone']
-                contato_id = Get_ContatoID_by_name()
                 query = 'UPDATE telefone ' + \
                         'SET ' + set_stat + ' ' + \
                         'WHERE telefone=\'{}\'' \
@@ -337,7 +344,7 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
 def Start_http_server():
     print('http server is starting...')
     Check_tables()
-    server_address = ('localhost', 9090)
+    server_address = ('0.0.0.0', 9090)
     httpd = HTTPServer(server_address, MyHTTPRequestHandler)  
     print('http server is running...')
     httpd.serve_forever()

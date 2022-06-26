@@ -3,7 +3,8 @@ import urllib.parse as up
 import psycopg2
 from psycopg2.extras import LoggingConnection
 
-POSTGRES_URL = "postgres://fywwmpwc:tch3IBBOrFOQFdUs6QPd_UosRQjqPByT@kesavan.db.elephantsql.com/fywwmpwc"
+POSTGRES_URL = "postgres://novaweb-desafio-user:novaweb-desafio-password@postgres_server:5432/postgres"
+# POSTGRES_URL = "postgres://novaweb-desafio-user:novaweb-desafio-password@0.0.0.0:5432/postgres"
 
 class Postgres:
     def __init__(self):

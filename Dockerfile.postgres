@@ -1,0 +1,4 @@
+FROM postgres:latest
+
+ENV POSTGRES_USER='novaweb-desafio-user'
+ENV POSTGRES_PASSWORD='novaweb-desafio-password'

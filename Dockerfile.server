@@ -1,0 +1,11 @@
+FROM python:3
+
+COPY . /server
+
+WORKDIR /server
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+EXPOSE 9090
+
+CMD ["python", "./Server.py"]

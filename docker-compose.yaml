@@ -1,0 +1,24 @@
+version: '3.8'
+services:
+    postgres-environment:
+        container_name: postgres-server
+        build:
+            context: .
+            dockerfile: Dockerfile.postgres
+        restart: always
+        ports:
+            - 5432
+        # volumes:
+        #     - ./php/src:/var/www/html/
+    python-environment:
+        container_name: python-server
+        build:
+            context: .
+            dockerfile: Dockerfile.server
+        depends_on:
+            - postgres-environment
+        restart: always
+        ports:
+            - "9090:9090"
+        links:
+            -  postgres-environment:postgres_server

@@ -45,17 +45,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-  deploy-dev:
-    runs-on: ubuntu-latest
-    environment:
-      name: dev
-      url: 'contatos-api.mat.br'
-    needs: build-and-push-image
-    container:
-      image: ghcr.io/mateuscavalc/python-server:main
-      ports:
-           - 9090:9090
-    steps:
-      - name: Checkout repository
-        run: echo Server started.
