@@ -33,26 +33,30 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
+      - name: Extract metadata to python image
+        id: meta_python
         uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
         with:
-          images: |
-            ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME_PYTHON }}
-            ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME_POSTGRES }}
+          images: ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME_PYTHON }}
+
+      - name: Extract metadata to postgres image
+        id: meta_postgres
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME_POSTGRES }}
 
       - name: Build and push python image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           file: ./Dockerfile.server
           push: true
-          tags: ${{ steps.meta.outputs.tags }[0]}
-          labels: ${{ steps.meta.outputs.labels }[0]}
+          tags: ${{ steps.meta_python.outputs.tags }}
+          labels: ${{ steps.meta_python.outputs.labels }}
 
       - name: Build and push postgres image
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
           file: ./Dockerfile.postgres
           push: true
-          tags: ${{ steps.meta.outputs.tags }[1]}
-          labels: ${{ steps.meta.outputs.labels }[1]}
+          tags: ${{ steps.meta.outputs_postgres.tags }}
+          labels: ${{ steps.meta.outputs_postgres.labels }}
