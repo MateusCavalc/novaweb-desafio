@@ -6,11 +6,13 @@ ENV DB_ADDRESS='postgres_server'
 ENV DB_PORT='5432'
 ENV DB_NAME='novaweb-db'
 
-COPY ./python /server
 
-WORKDIR /server
+COPY ./python /server
+COPY ./requirements.txt /requirements.txt
 
 RUN pip install --no-cache-dir -r requirements.txt
+
+WORKDIR /server
 
 EXPOSE 9090
 
