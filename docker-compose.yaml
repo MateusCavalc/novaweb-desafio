@@ -2,9 +2,7 @@ version: '3.8'
 services:
     postgres-environment:
         container_name: postgres-server
-        build:
-            context: .
-            dockerfile: Dockerfile.postgres
+        image: ghcr.io/mateuscavalc/postgres-server:main
         restart: always
         ports:
             - 5432
@@ -12,9 +10,7 @@ services:
         #     - ./php/src:/var/www/html/
     python-environment:
         container_name: python-server
-        build:
-            context: .
-            dockerfile: Dockerfile.server
+        image: ghcr.io/mateuscavalc/python-server:main
         depends_on:
             - postgres-environment
         restart: always

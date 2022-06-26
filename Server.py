@@ -37,6 +37,12 @@ def Check_tables():
     except Exception as e:
         print(e)
 
+# Custom Exception
+class ContatoNotFound(Exception):
+    def __init__(self, contato_nome):
+        self.message = "Contato \'" + contato_nome + "\' not found."
+        super().__init__(self.message)
+
 def Get_ContatoID_by_name(cur, nome):
     try:
         query = 'SELECT contato_id ' + \
@@ -45,7 +51,10 @@ def Get_ContatoID_by_name(cur, nome):
 
         cur.execute(query)
         data_row = cur.fetchone()
-        return data_row[0]
+        if data_row is not None:
+            return data_row[0]
+        else:
+            raise ContatoNotFound(nome)
     except Exception as e:
         raise e
 
@@ -144,10 +153,10 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             cur = conn.cursor()
             
             if self.path == '/contatos':
-                query = 'SELECT nome, email, STRING_AGG(telefone, \',\') as telefones ' + \
+                query = 'SELECT contato.contato_id, nome, email, STRING_AGG(telefone, \',\') as telefones ' + \
                         'FROM contato ' + \
                         'LEFT JOIN telefone ON contato.contato_id=telefone.contato_id ' + \
-                        'GROUP BY nome, email'
+                        'GROUP BY contato.contato_id, nome, email'
             elif self.path == '/telefones':
                 query = 'SELECT telefone.telefone_id, contato.nome, telefone.telefone ' + \
                         'FROM contato ' + \
