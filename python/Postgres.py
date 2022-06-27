@@ -143,9 +143,9 @@ def Update_contato_telefones(cur, contato_nome, new_telefones):
                 to_remove.append(old_telefone)
         
         if len(to_remove) > 1:
-            query = 'DELETE FROM telefone WHERE telefone IN (\'{}\')'.format(to_remove[0])
-        else:
             query = 'DELETE FROM telefone WHERE telefone IN {}'.format(tuple(to_remove))
+        else:
+            query = 'DELETE FROM telefone WHERE telefone IN (\'{}\')'.format(to_remove[0])
 
         cur.execute(query)
 
