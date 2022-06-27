@@ -3,8 +3,7 @@ import urllib.parse as up
 import psycopg2
 import time
 
-# POSTGRES_URL = 'postgres://' + os.getenv('DB_USER') + ':' + os.getenv('DB_PASSWORD') + '@' + os.getenv('DB_ADDRESS') + ':' + os.getenv('DB_PORT') + '/' + os.getenv('DB_NAME')
-POSTGRES_URL = 'postgres://fywwmpwc:tch3IBBOrFOQFdUs6QPd_UosRQjqPByT@kesavan.db.elephantsql.com/fywwmpwc'
+POSTGRES_URL = 'postgres://' + os.getenv('DB_USER') + ':' + os.getenv('DB_PASSWORD') + '@' + os.getenv('DB_ADDRESS') + ':' + os.getenv('DB_PORT') + '/' + os.getenv('DB_NAME')
 
 
 # Classe de conexão com o banco Postgres
