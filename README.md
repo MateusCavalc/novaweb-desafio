@@ -90,7 +90,7 @@ Com isso, a API passa a responder  no endereço **localhost** e porta **9090**.
 | `nome` | `string` | **Obrigatório**. Nome do contato para atualização|
 | `infos` | `json` | **Obrigatório**. Json com as informações de atualização|
 
-Dentro do campo `infos` podem ter as seguintes informações:
+Dentro do campo `infos` podem existir as seguintes informações:
 
 | Parâmetro | Tipo       | Descrição |
 |---|---|---|
@@ -133,7 +133,7 @@ Dentro do campo `infos` podem ter as seguintes informações:
 | `telefone` | `string` | **Obrigatório**. Telefone para atualização|
 | `infos` | `json` | **Obrigatório**. Json com as informações de atualização|
 
-Dentro do campo `infos` podem ter as seguintes informações:
+Dentro do campo `infos` podem existir as seguintes informações:
 
 | Parâmetro | Tipo       | Descrição |
 |---|---|---|
