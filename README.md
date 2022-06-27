@@ -4,7 +4,7 @@
 Este diretório é referente ao desafio de backend proposto pela Novaweb.
 ## Solução
 
-Foi implementado uma API REST, utilizando a linguagem Python, que efetua a manutenção de chamadas ao banco de dados PostgreSQL de acordo com as seguintes rotas encontradas em [https://www.getpostman.com/collections/8c6c597a343872987b88](https://www.getpostman.com/collections/da649a75cf5532d3538e) (Postman Collection).
+Foi implementado uma API REST, utilizando a linguagem Python, que efetua a manutenção de chamadas ao banco de dados PostgreSQL de acordo com as seguintes rotas encontradas em [https://www.getpostman.com/collections/8c6c597a343872987b88](https://www.getpostman.com/collections/8c6c597a343872987b88) (Postman Collection).
 
 ## Deploy
 
