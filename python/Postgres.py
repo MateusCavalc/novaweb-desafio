@@ -49,6 +49,7 @@ def Check_tables(db_instance):
     retry_connection = True
     conn = None
     cur = None
+    time.sleep(5)
     while retry_connection:
         try:
             conn = db_instance.connectToDataBase()

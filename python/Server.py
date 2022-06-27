@@ -248,14 +248,14 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(responsePayload).encode())
 
 def Start_http_server():
-    print('http server is starting...', flush=True)
+    print('# HTTP SERVER IS STARTING... #', flush=True)
 
     # Executa queries de criação de tabela
     Check_tables(DATABASE_INSTANCE)
 
     server_address = ('0.0.0.0', 9090)
     httpd = HTTPServer(server_address, MyHTTPRequestHandler)  
-    print('http server is running...', flush=True)
+    print('# HTTP SERVER IS RUNNING .. #', flush=True)
     httpd.serve_forever()
 
 def main():
