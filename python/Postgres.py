@@ -2,6 +2,7 @@ import os
 import urllib.parse as up
 import psycopg2
 import time
+from CustomExceptions import ContatoNotFound
 
 POSTGRES_URL = 'postgres://' + os.getenv('DB_USER') + ':' + os.getenv('DB_PASSWORD') + '@' + os.getenv('DB_ADDRESS') + ':' + os.getenv('DB_PORT') + '/' + os.getenv('DB_NAME')
 

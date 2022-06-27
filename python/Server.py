@@ -2,7 +2,6 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 from Postgres import *
-from CustomExceptions import ContatoNotFound
 
 DATABASE_INSTANCE = Postgres()
 
