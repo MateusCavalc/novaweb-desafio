@@ -47,7 +47,6 @@ def Check_tables(db_instance):
                             ')'
 
     retry_connection = True
-    time.sleep(5)
     conn = None
     cur = None
     while retry_connection:
@@ -60,13 +59,13 @@ def Check_tables(db_instance):
             retry_connection = False
             
         except Exception as e:
-            print(e)
+            print(str(e), flush=True)
             if e != "FATAL:  the database system is starting up":
                 retry_connection = False
             else:
-                print("Waiting for database to come online...")
+                print("Waiting for database to come online...", flush=True)
                 time.sleep(5)
-                print("Retrying connection...")
+                print("Retrying connection...", flush=True)
         finally:
             if cur is not None:
                 cur.close()

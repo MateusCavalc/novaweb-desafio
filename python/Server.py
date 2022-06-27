@@ -65,7 +65,7 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             responsePayload['data'] = data_array
 
         except Exception as e:
-            print('> Error:', e)
+            print('> Error: ' + str(e), flush=True)
             responsePayload = {'status': 'failed', 'error': str(e)}
         finally:
             if cur is not None:
@@ -118,7 +118,7 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             responsePayload = {'status': 'success'}
 
         except Exception as e:
-            print('> Error:', e)
+            print('> Error: ' + str(e), flush=True)
             responsePayload = {'status': 'failed', 'error': str(e)}
         finally:
             if cur is not None:
@@ -192,7 +192,7 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             responsePayload = {'status': 'success'}
 
         except Exception as e:
-            print('> Error:', e)
+            print('> Error: ' + str(e), flush=True)
             responsePayload = {'status': 'failed', 'error': str(e)}
         finally:
             if cur is not None:
@@ -236,7 +236,7 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
             responsePayload = {'status': 'success'}
 
         except Exception as e:
-            print('> Error:', e)
+            print('> Error: ' + str(e), flush=True)
             responsePayload = {'status': 'failed', 'error': str(e)}
         finally:
             if cur is not None:
@@ -248,14 +248,14 @@ class MyHTTPRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(json.dumps(responsePayload).encode())
 
 def Start_http_server():
-    print('http server is starting...')
+    print('http server is starting...', flush=True)
 
     # Executa queries de criação de tabela
     Check_tables(DATABASE_INSTANCE)
 
     server_address = ('0.0.0.0', 9090)
     httpd = HTTPServer(server_address, MyHTTPRequestHandler)  
-    print('http server is running...')
+    print('http server is running...', flush=True)
     httpd.serve_forever()
 
 def main():
